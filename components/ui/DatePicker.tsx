@@ -8,6 +8,11 @@ const MONTHS_TH = [
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
 ];
 
+const MONTHS_ABBR_TH = [
+  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
+];
+
 interface DatePickerProps {
   value: string; // "YYYY-MM-DD"
   onChange: (value: string) => void;
@@ -83,7 +88,7 @@ export default function DatePicker({
 
   // Display value in Thai format
   const displayValue = selectedDate
-    ? `${selectedDate.getDate()} ${MONTHS_TH[selectedDate.getMonth()].slice(0, 3)}. ${selectedDate.getFullYear() + 543}`
+    ? `${selectedDate.getDate()} ${MONTHS_ABBR_TH[selectedDate.getMonth()]} ${selectedDate.getFullYear() + 543}`
     : "";
 
   // Calendar grid
