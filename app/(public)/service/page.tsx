@@ -64,7 +64,9 @@ export default function Service() {
   const [currentStep, setCurrentStep] = useState(0);
   const stepperRef = useRef<HTMLDivElement>(null);
   const [addressData, setAddressData] = useState<AddressData>({});
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [reporterType, setReporterType] = useState<"identify" | "anonymous" | null>(null);
+  const [knowPharmacist, setKnowPharmacist] = useState<"yes" | "no" | null>(null);
+  const isAnonymous = reporterType === "anonymous";
 
   /* Load address JSON */
   useEffect(() => {
@@ -247,55 +249,85 @@ export default function Service() {
               <h2 className={styles.cardTitle}>ข้อมูลผู้ร้อง</h2>
             </div>
             <div className={styles.formBody}>
-              {/* คำนำหน้า */}
-              <div className={styles.formGroup} style={{ maxWidth: 220 }}>
-                <label className={styles.label}>คำนำหน้าชื่อ-นามสกุล <span className={styles.required}>*</span></label>
-                <div className={styles.selectWrapper}>
-                  <select name="title" value={s1.title} onChange={(e) => setS1({ ...s1, title: e.target.value })} className={styles.select}>
-                    <option value="">เลือก</option>
-                    {TITLE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                  <span className={styles.selectArrow}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              {/* เลือกประเภทผู้ร้อง */}
+              <div className={styles.selectionGrid}>
+                <div 
+                  className={`${styles.selectionCard} ${reporterType === "identify" ? styles.selectionCardActive : ""}`}
+                  onClick={() => setReporterType("identify")}
+                >
+                  <div className={styles.selectionIcon}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div className={styles.selectionLabelText}>ระบุตัวตน</div>
+                  <span className={styles.selectionDesc}>กรอกข้อมูลส่วนตัวเพื่อความสะดวกในการติดต่อกลับ</span>
+                </div>
+
+                <div 
+                  className={`${styles.selectionCard} ${reporterType === "anonymous" ? styles.selectionCardActive : ""}`}
+                  onClick={() => setReporterType("anonymous")}
+                >
+                  <div className={styles.selectionIcon}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  </div>
+                  <div className={styles.selectionLabelText}>ไม่ระบุตัวตน</div>
+                  <span className={styles.selectionDesc}>ปกปิดข้อมูลตัวตนของผู้แจ้งเบาะแส</span>
                 </div>
               </div>
-              {/* ชื่อ + นามสกุล */}
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>ชื่อภาษาไทย <span className={styles.required}>*</span></label>
-                  <input type="text" value={s1.firstName} onChange={(e) => setS1({ ...s1, firstName: e.target.value })} placeholder="กรอกชื่อของคุณ" className={styles.input} />
+
+              {reporterType === "identify" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 20, animation: "fadeInUp 0.3s ease" }}>
+                  {/* คำนำหน้า */}
+                  <div className={styles.formGroup} style={{ maxWidth: 220 }}>
+                    <label className={styles.label}>คำนำหน้าชื่อ-นามสกุล <span className={styles.required}>*</span></label>
+                    <div className={styles.selectWrapper}>
+                      <select name="title" value={s1.title} onChange={(e) => setS1({ ...s1, title: e.target.value })} className={styles.select}>
+                        <option value="">เลือก</option>
+                        {TITLE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <span className={styles.selectArrow}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                    </div>
+                  </div>
+                  {/* ชื่อ + นามสกุล */}
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>ชื่อภาษาไทย <span className={styles.required}>*</span></label>
+                      <input type="text" value={s1.firstName} onChange={(e) => setS1({ ...s1, firstName: e.target.value })} placeholder="กรอกชื่อของคุณ" className={styles.input} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>นามสกุลภาษาไทย <span className={styles.required}>*</span></label>
+                      <input type="text" value={s1.lastName} onChange={(e) => setS1({ ...s1, lastName: e.target.value })} placeholder="กรอกนามสกุลของคุณ" className={styles.input} />
+                    </div>
+                  </div>
+                  {/* เบอร์ */}
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>เบอร์โทรศัพท์ที่ติดต่อได้ <span className={styles.required}>*</span> <span className={styles.hint}>(10 หลัก)</span></label>
+                      <input type="tel" value={s1.phone} onChange={(e) => setS1({ ...s1, phone: e.target.value })} placeholder="กรอกเบอร์โทรศัพท์ของคุณ" className={styles.input} maxLength={10} />
+                    </div>
+                    <div className={styles.formGroup} />
+                  </div>
+                  {/* ที่อยู่ */}
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>ที่อยู่ที่สามารถติดต่อได้ <span className={styles.required}>*</span></label>
+                    <textarea value={s1.address} onChange={(e) => setS1({ ...s1, address: e.target.value })} placeholder="บ้านเลขที่ หมู่บ้าน ซอย ถนน..." className={styles.textarea} rows={3} />
+                  </div>
+                  {renderAddressRow(addr1)}
                 </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>นามสกุลภาษาไทย <span className={styles.required}>*</span></label>
-                  <input type="text" value={s1.lastName} onChange={(e) => setS1({ ...s1, lastName: e.target.value })} placeholder="กรอกนามสกุลของคุณ" className={styles.input} />
+              )}
+
+              {reporterType && (
+                <div className={styles.btnRow}>
+                  <button type="button" className={styles.btnNext} onClick={handleNext}>
+                    ยืนยัน
+                  </button>
                 </div>
-              </div>
-              {/* เบอร์ */}
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>เบอร์โทรศัพท์ที่ติดต่อได้ <span className={styles.required}>*</span> <span className={styles.hint}>(10 หลัก)</span></label>
-                  <input type="tel" value={s1.phone} onChange={(e) => setS1({ ...s1, phone: e.target.value })} placeholder="กรอกเบอร์โทรศัพท์ของคุณ" className={styles.input} maxLength={10} />
-                </div>
-                <div className={styles.formGroup} />
-              </div>
-              {/* ที่อยู่ */}
-              <div className={styles.formGroup}>
-                <label className={styles.label}>ที่อยู่ที่สามารถติดต่อได้ <span className={styles.required}>*</span></label>
-                <textarea value={s1.address} onChange={(e) => setS1({ ...s1, address: e.target.value })} placeholder="บ้านเลขที่ หมู่บ้าน ซอย ถนน..." className={styles.textarea} rows={3} />
-              </div>
-              {renderAddressRow(addr1)}
-              {/* ไม่ระบุตัวตน */}
-              <div className={styles.anonymousRow}>
-                <label className={styles.checkboxLabel}>
-                  <input type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className={styles.checkbox} />
-                  <span className={styles.checkboxText}>ไม่ระบุตัวตน</span>
-                </label>
-              </div>
-              <div className={styles.btnRow}>
-                <button type="button" className={styles.btnNext} onClick={handleNext}>
-                  ยืนยัน
-                  
-                </button>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -353,39 +385,78 @@ export default function Service() {
 
               {/* ข้อมูลเภสัชกร */}
               <div className={styles.sectionDivider}>
-                <span className={styles.sectionLabel}>ข้อมูลเภสัชกร <span className={styles.optionalBadge}>ถ้ามี / ไม่บังคับ</span></span>
+                <span className={styles.sectionLabel}>ข้อมูลเภสัชกร</span>
               </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>ชื่อ</label>
-                  <input type="text" value={s2.pharmacistFirstName} onChange={(e) => setS2({ ...s2, pharmacistFirstName: e.target.value })} placeholder="กรอกชื่อเภสัชกร" className={styles.input} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>นามสกุล</label>
-                  <input type="text" value={s2.pharmacistLastName} onChange={(e) => setS2({ ...s2, pharmacistLastName: e.target.value })} placeholder="กรอกนามสกุลเภสัชกร" className={styles.input} />
-                </div>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>เลขใบประกอบวิชาชีพเภสัชกรรม</label>
-                  <input type="text" value={s2.licenseNo} onChange={(e) => setS2({ ...s2, licenseNo: e.target.value })} placeholder="กรอกเลขใบประกอบวิชาชีพ" className={styles.input} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>เวลาปฏิบัติหน้าที่</label>
-                  <div className={styles.timeSelectRow}>
-                    <TimePicker value={s2.workHoursStart} onChange={(v) => setS2({ ...s2, workHoursStart: v })} placeholder="เริ่ม" />
-                    <span className={styles.timeSeparator}>-</span>
-                    <TimePicker value={s2.workHoursEnd} onChange={(v) => setS2({ ...s2, workHoursEnd: v })} placeholder="สิ้นสุด" />
+
+              {/* เลือกทราบ/ไม่ทราบข้อมูลเภสัช */}
+              <div className={styles.selectionGrid} style={{ marginTop: 8 }}>
+                <div 
+                  className={`${styles.selectionCard} ${knowPharmacist === "yes" ? styles.selectionCardActive : ""}`}
+                  onClick={() => setKnowPharmacist("yes")}
+                  style={{ padding: '16px 12px' }}
+                >
+                  <div className={styles.selectionIcon} style={{ width: 40, height: 40 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="8.5" cy="7" r="4" />
+                      <polyline points="17 11 19 13 23 9" />
+                    </svg>
                   </div>
+                  <div className={styles.selectionLabelText} style={{ fontSize: '0.95rem' }}>ทราบข้อมูล</div>
+                </div>
+
+                <div 
+                  className={`${styles.selectionCard} ${knowPharmacist === "no" ? styles.selectionCardActive : ""}`}
+                  onClick={() => setKnowPharmacist("no")}
+                  style={{ padding: '16px 12px' }}
+                >
+                  <div className={styles.selectionIcon} style={{ width: 40, height: 40 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <div className={styles.selectionLabelText} style={{ fontSize: '0.95rem' }}>ไม่ทราบข้อมูล</div>
                 </div>
               </div>
 
+              {knowPharmacist === "yes" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 20, animation: "fadeInUp 0.3s ease", marginTop: 10 }}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>ชื่อ</label>
+                      <input type="text" value={s2.pharmacistFirstName} onChange={(e) => setS2({ ...s2, pharmacistFirstName: e.target.value })} placeholder="กรอกชื่อเภสัชกร" className={styles.input} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>นามสกุล</label>
+                      <input type="text" value={s2.pharmacistLastName} onChange={(e) => setS2({ ...s2, pharmacistLastName: e.target.value })} placeholder="กรอกนามสกุลเภสัชกร" className={styles.input} />
+                    </div>
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>เลขใบประกอบวิชาชีพเภสัชกรรม</label>
+                      <input type="text" value={s2.licenseNo} onChange={(e) => setS2({ ...s2, licenseNo: e.target.value })} placeholder="กรอกเลขใบประกอบวิชาชีพ" className={styles.input} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>เวลาปฏิบัติหน้าที่</label>
+                      <div className={styles.timeSelectRow}>
+                        <TimePicker value={s2.workHoursStart} onChange={(v) => setS2({ ...s2, workHoursStart: v })} placeholder="เริ่ม" />
+                        <span className={styles.timeSeparator}>-</span>
+                        <TimePicker value={s2.workHoursEnd} onChange={(v) => setS2({ ...s2, workHoursEnd: v })} placeholder="สิ้นสุด" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className={styles.btnRow}>
                 <button type="button" className={styles.btnBack} onClick={handleBack}>ย้อนกลับ</button>
-                <button type="button" className={styles.btnNext} onClick={handleNext}>
-                  ยืนยัน
-                  
-                </button>
+                {knowPharmacist && (
+                  <button type="button" className={styles.btnNext} onClick={handleNext}>
+                    ยืนยัน
+                  </button>
+                )}
               </div>
             </div>
           </div>
