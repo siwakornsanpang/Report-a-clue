@@ -66,6 +66,7 @@ export default function Service() {
   const [addressData, setAddressData] = useState<AddressData>({});
   const [reporterType, setReporterType] = useState<"identify" | "anonymous" | null>(null);
   const [knowPharmacist, setKnowPharmacist] = useState<"yes" | "no" | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const isAnonymous = reporterType === "anonymous";
 
   /* Load address JSON */
@@ -149,6 +150,10 @@ export default function Service() {
   };
   const handleNext = () => { setCurrentStep((p) => Math.min(p + 1, STEPS.length - 1)); scrollToTop(); };
   const handleBack = () => { setCurrentStep((p) => p - 1); scrollToTop(); };
+  const handleSubmit = () => {
+    // In a real app, you would send data to API here
+    setShowSuccess(true);
+  };
 
   /* ─── Step Indicator ─── */
   const renderStepper = () => (
@@ -159,7 +164,7 @@ export default function Service() {
         return (
           <div key={index} className={styles.stepItem}>
             {index !== 0 && (
-              <div className={`${styles.connector} ${isCompleted ? styles.connectorDone : ""}`} />
+              <div className={`${styles.connector} ${index <= currentStep ? styles.connectorDone : ""}`} />
             )}
             <div className={styles.stepCircleWrapper}>
               <div className={`${styles.circle} ${isCompleted ? styles.circleDone : isActive ? styles.circleActive : styles.circleInactive}`}>
@@ -297,18 +302,18 @@ export default function Service() {
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>ชื่อภาษาไทย <span className={styles.required}>*</span></label>
-                      <input type="text" value={s1.firstName} onChange={(e) => setS1({ ...s1, firstName: e.target.value })} placeholder="กรอกชื่อของคุณ" className={styles.input} />
+                      <input type="text" value={s1.firstName} onChange={(e) => setS1({ ...s1, firstName: e.target.value.replace(/[^a-zA-Zก-๙\s]/g, "") })} placeholder="กรอกชื่อของคุณ" className={styles.input} />
                     </div>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>นามสกุลภาษาไทย <span className={styles.required}>*</span></label>
-                      <input type="text" value={s1.lastName} onChange={(e) => setS1({ ...s1, lastName: e.target.value })} placeholder="กรอกนามสกุลของคุณ" className={styles.input} />
+                      <input type="text" value={s1.lastName} onChange={(e) => setS1({ ...s1, lastName: e.target.value.replace(/[^a-zA-Zก-๙\s]/g, "") })} placeholder="กรอกนามสกุลของคุณ" className={styles.input} />
                     </div>
                   </div>
                   {/* เบอร์ */}
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>เบอร์โทรศัพท์ที่ติดต่อได้ <span className={styles.required}>*</span> <span className={styles.hint}>(10 หลัก)</span></label>
-                      <input type="tel" value={s1.phone} onChange={(e) => setS1({ ...s1, phone: e.target.value })} placeholder="กรอกเบอร์โทรศัพท์ของคุณ" className={styles.input} maxLength={10} />
+                      <input type="tel" value={s1.phone} onChange={(e) => setS1({ ...s1, phone: e.target.value.replace(/[^0-9]/g, "") })} placeholder="กรอกเบอร์โทรศัพท์ของคุณ" className={styles.input} maxLength={10} />
                     </div>
                     <div className={styles.formGroup} />
                   </div>
@@ -426,11 +431,11 @@ export default function Service() {
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>ชื่อ</label>
-                      <input type="text" value={s2.pharmacistFirstName} onChange={(e) => setS2({ ...s2, pharmacistFirstName: e.target.value })} placeholder="กรอกชื่อเภสัชกร" className={styles.input} />
+                      <input type="text" value={s2.pharmacistFirstName} onChange={(e) => setS2({ ...s2, pharmacistFirstName: e.target.value.replace(/[^a-zA-Zก-๙\s]/g, "") })} placeholder="กรอกชื่อเภสัชกร" className={styles.input} />
                     </div>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>นามสกุล</label>
-                      <input type="text" value={s2.pharmacistLastName} onChange={(e) => setS2({ ...s2, pharmacistLastName: e.target.value })} placeholder="กรอกนามสกุลเภสัชกร" className={styles.input} />
+                      <input type="text" value={s2.pharmacistLastName} onChange={(e) => setS2({ ...s2, pharmacistLastName: e.target.value.replace(/[^a-zA-Zก-๙\s]/g, "") })} placeholder="กรอกนามสกุลเภสัชกร" className={styles.input} />
                     </div>
                   </div>
                   <div className={styles.formRow}>
@@ -560,7 +565,7 @@ export default function Service() {
 
               <div className={styles.btnRow}>
                 <button type="button" className={styles.btnBack} onClick={handleBack}>ย้อนกลับ</button>
-                <button type="button" className={styles.btnSubmit}>
+                <button type="button" className={styles.btnSubmit} onClick={handleSubmit}>
                   ส่งข้อมูล
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M22 2L11 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
@@ -572,6 +577,26 @@ export default function Service() {
           </div>
         )}
       </div>
+
+      {showSuccess && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalIcon}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <h2 className={styles.modalTitle}>ขอขอบคุณที่แจ้งเบาะแส</h2>
+            <p className={styles.modalDesc}>ข้อมูลของคุณถูกส่งเข้าระบบเรียบร้อยแล้ว เราจะดำเนินการตรวจสอบโดยเร็วที่สุด</p>
+            <button 
+              className={styles.modalBtn} 
+              onClick={() => window.location.reload()}
+            >
+              ตกลง
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
